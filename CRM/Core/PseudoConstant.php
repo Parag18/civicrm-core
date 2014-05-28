@@ -1867,5 +1867,20 @@ WHERE  id = %1
 
     return self::$taxRates;
   }
+
+  /**
+   *
+   *Function for getting the financial_type_id of price field
+   *
+   */
+  public static function getFinancialId($Id) {
+    $sql = "
+      SELECT financial_type_id
+      FROM civicrm_price_field_value cpfv
+      LEFT JOIN civicrm_financial_type cpf ON cpf.id = cpfv.financial_type_id
+      WHERE cpfv.price_field_id = ".$Id ;
+    $dao = CRM_Core_DAO::singleValueQuery($sql);
+    return $dao;
+  }
 }
 
