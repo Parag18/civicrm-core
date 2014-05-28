@@ -1657,6 +1657,7 @@ WHERE   id IN ( ' . implode(' , ', array_keys($membershipType)) . ' )';
     }
 
     if (!empty($lineItem[$priceSetId])) {
+      $totalTaxAmount = 0;
       foreach ($lineItem[$priceSetId] as & $priceFieldOp) {
         if (!empty($priceFieldOp['membership_type_id'])) {
           $priceFieldOp['start_date'] = $membershipTypeValues[$priceFieldOp['membership_type_id']]['start_date'] ? CRM_Utils_Date::customFormat($membershipTypeValues[$priceFieldOp['membership_type_id']]['start_date'], '%d%f %b, %Y') : '-';
@@ -1666,8 +1667,16 @@ WHERE   id IN ( ' . implode(' , ', array_keys($membershipType)) . ' )';
         else {
           $priceFieldOp['start_date'] = $priceFieldOp['end_date'] = 'N/A';
         }
+        $totalTaxAmount += $priceFieldOp['tax_amount'] ;
       }
+      $dataArray = array();
+      foreach ($lineItem[$priceSetId] as $key => $value) {
+        $dataArray[$value['tax_rate']] += $value['tax_amount'];
+      }
+      $smarty = CRM_Core_Smarty::singleton();
+      $smarty->assign('dataArray', $dataArray);
     }
+    $this->assign('totalTaxAmount', $totalTaxAmount);
     $this->assign('lineItem', !empty($lineItem) && !$isQuickConfig ? $lineItem : FALSE);
 
     $receiptSend = FALSE;

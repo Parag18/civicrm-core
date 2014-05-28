@@ -392,6 +392,7 @@ class CRM_Contribute_Form_Contribution_Confirm extends CRM_Contribute_Form_Contr
     $amount_block_is_active = $this->get('amount_block_is_active');
     $this->assign('amount_block_is_active', $amount_block_is_active);
 
+    $this->assign('totalTaxAmount', $params['tax_amount']);
     if (!empty($params['selectProduct']) && $params['selectProduct'] != 'no_thanks') {
       $option = CRM_Utils_Array::value('options_' . $params['selectProduct'], $params);
       $productID = $params['selectProduct'];
@@ -1296,6 +1297,19 @@ class CRM_Contribute_Form_Contribution_Confirm extends CRM_Contribute_Form_Contr
 
     if (isset($params['amount'])) {
       $contribParams['line_item'] = $form->_lineItem;
+      $totalTaxAmount = 0;
+      $dataArray = array();
+      foreach ($form->_lineItem as $lineItemKey => $lineItemValue) {
+        foreach ($lineItemValue as $key => $value) {
+          if (isset($value['tax_amount']) && isset($value['tax_rate'])) {
+            $totalTaxAmount = $value['tax_amount'] + $totalTaxAmount;
+            $dataArray[$value['tax_rate']] += $value['tax_amount'];
+          }
+        }
+      }
+      $smarty = CRM_Core_Smarty::singleton();
+      $smarty->assign('dataArray', $dataArray);
+      $smarty->assign('totalTaxAmount', $totalTaxAmount);
       //add contribution record
       $contribution = CRM_Contribute_BAO_Contribution::add($contribParams, $ids);
       if (is_a($contribution, 'CRM_Core_Error')) {

@@ -232,6 +232,7 @@ class CRM_Event_Form_Registration_Confirm extends CRM_Event_Form_Registration {
     ) {
       $this->_amount = array();
 
+      $this->assign('totalTaxAmount', $this->_params[0]['tax_amount']);
       foreach ($this->_params as $k => $v) {
         if (is_array($v)) {
           foreach (array(
@@ -669,6 +670,8 @@ class CRM_Event_Form_Registration_Confirm extends CRM_Event_Form_Registration {
       }
 
       $entityTable = 'civicrm_participant';
+      $totalTaxAmount = 0;
+      $dataArray = array();
       foreach ($this->_lineItem as $key => $value) {
         if (($value != 'skip') &&
           ($entityId = CRM_Utils_Array::value($key, $allParticipantIds))
@@ -681,7 +684,15 @@ class CRM_Event_Form_Registration_Confirm extends CRM_Event_Form_Registration {
           $lineItem[$this->_priceSetId] = $value;
           CRM_Price_BAO_LineItem::processPriceSet($entityId, $lineItem, $contribution, $entityTable);
         }
+        foreach ($value as $line) {
+          if (isset($line['tax_amount']) && isset($line['tax_rate'])) {
+            $totalTaxAmount = $line['tax_amount'] + $totalTaxAmount;
+            $dataArray[$line['tax_rate']] += $line['tax_amount'];
+          }
+        }
       }
+      $this->assign('dataArray', $dataArray);
+      $this->assign('totalTaxAmount', $totalTaxAmount);
     }
 
     //update status and send mail to cancelled additonal participants, CRM-4320

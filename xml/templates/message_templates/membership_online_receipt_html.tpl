@@ -165,12 +165,23 @@
       {else}
        {if $useForMember && $lineItem and !$is_quick_config}
        {foreach from=$lineItem item=value key=priceset}
+         {foreach from=$value item=v key=k }
+           {if $v.tax_amount}
+             {assign var="tax" value=$v.tax_amount}
+           {/if}
+         {/foreach}
         <tr>
          <td colspan="2" {$valueStyle}>
           <table> {* FIXME: style this table so that it looks like the text version (justification, etc.) *}
            <tr>
             <th>{ts}Item{/ts}</th>
             <th>{ts}Fee{/ts}</th>
+            {if $tax}
+              <th>{ts}SubTotal{/ts}</th>
+              <th>{ts}Tax Rate{/ts}</th>
+              <th>{ts}Tax Amount{/ts}</th>
+              <th>{ts}Total{/ts}</th>
+            {/if}
       <th>{ts}Membership Start Date{/ts}</th>
       <th>{ts}Membership End Date{/ts}</th>
            </tr>
@@ -182,6 +193,20 @@
              <td>
               {$line.line_total|crmMoney}
              </td>
+             {if $tax}
+              <td>
+               {$line.unit_price*$line.qty|crmMoney}
+              </td>
+              <td>
+               {$line.tax_rate|crmMoney}
+              </td>
+              <td>
+               {$line.tax_amount|crmMoney}
+              </td>
+              <td>
+               {$line.line_total|crmMoney}
+              </td>
+             {/if}
              <td>
               {$line.start_date}
              </td>
@@ -195,6 +220,37 @@
         </tr>
        {/foreach}
        {/if}
+
+       {if $tax}
+        <tr>
+         <td {$labelStyle}>
+          {ts}Amount Before Tax : {/ts}
+         </td>
+         <td {$valueStyle}>
+          {$amount-$totalTaxAmount|crmMoney}
+         </td>
+        </tr>
+        {foreach from=$dataArray item=value key=priceset}
+         <tr>
+         {if $priceset}
+          <td> VAT {$priceset}%</td>
+          <td>{$value|crmMoney:$currency}</td>
+         {elseif  $priceset == 0}
+          <td> VAT</td>
+          <td>{$value|crmMoney:$currency}</td>
+         {/if}
+         </tr>
+        {/foreach}
+
+       <tr>
+        <td {$labelStyle}>
+         {ts}Total Tax{/ts}
+        </td>
+        <td {$valueStyle}>
+         {$totalTaxAmount|crmMoney}
+        </td>
+       </tr>
+      {/if}
        <tr>
         <td {$labelStyle}>
          {ts}Amount{/ts}
@@ -203,6 +259,16 @@
          {$amount|crmMoney} {if $amount_level} - {$amount_level}{/if}
         </td>
        </tr>
+       {if $totalTaxAmount && $tax EQ ""}
+       <tr>
+        <td {$labelStyle}>
+         {ts}Total Tax Amount{/ts}
+        </td>
+        <td {$valueStyle}>
+         {$totalTaxAmount|crmMoney:$currency}
+        </td>
+       </tr>
+      {/if}
 
       {/if}
 

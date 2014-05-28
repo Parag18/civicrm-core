@@ -1630,6 +1630,20 @@ class CRM_Event_Form_Participant extends CRM_Contact_Form_Task {
         if ($this->_isPaidEvent) {
           // fix amount for each of participants ( for bulk mode )
           $eventAmount = array();
+          $totalTaxAmount = 0;
+          $dataArray = array();
+          if ($this->_action & CRM_Core_Action::ADD) {
+            $line = $lineItem[0];
+          }
+          elseif ($this->_action & CRM_Core_Action::UPDATE) {
+            $line = $this->_values['line_items'];
+          }
+          foreach ($line as $key => $value) {
+            $totalTaxAmount += $value['tax_amount'];
+            $dataArray[$value['tax_rate']] += $value['tax_amount'];
+          }
+          $this->assign('totalTaxAmount', $totalTaxAmount);
+          $this->assign('dataArray', $dataArray);
           if (!empty($additionalParticipantDetails)) {
             $params['amount_level'] = preg_replace('//', '', $params['amount_level']) . ' - ' . $this->_contributorDisplayName;
           }

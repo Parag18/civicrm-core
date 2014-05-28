@@ -164,6 +164,11 @@ registration process.{/ts}</p>
 
       {if $lineItem}
        {foreach from=$lineItem item=value key=priceset}
+         {foreach from=$value item=v key=k }
+           {if $v.tax_amount}
+             {assign var="tax" value=$v.tax_amount}
+           {/if}
+         {/foreach}
         {if $value neq 'skip'}
          {if $isPrimary}
           {if $lineItem|@count GT 1} {* Header for multi participant registration cases. *}
@@ -181,6 +186,11 @@ registration process.{/ts}</p>
              <th>{ts}Item{/ts}</th>
              <th>{ts}Qty{/ts}</th>
              <th>{ts}Each{/ts}</th>
+             {if $tax}
+              <th>{ts}SubTotal{/ts}</th>
+              <th>{ts}Tax Rate{/ts}</th>
+              <th>{ts}Tax Amount{/ts}</th>
+             {/if}
              <th>{ts}Total{/ts}</th>
        {if $pricesetFieldsCount }<th>{ts}Total Participants{/ts}</th>{/if}
             </tr>
@@ -195,6 +205,17 @@ registration process.{/ts}</p>
               <td>
                {$line.unit_price|crmMoney}
               </td>
+              {if $tax}
+               <td>
+                {$line.unit_price*$line.qty|crmMoney}
+               </td>
+               <td>
+                {$line.tax_rate|crmMoney}
+               </td>
+               <td>
+                {$line.tax_amount|crmMoney}
+               </td>
+              {/if}
               <td>
                {$line.line_total|crmMoney}
               </td>
@@ -221,6 +242,36 @@ registration process.{/ts}</p>
         </tr>
        {/foreach}
       {/if}
+      {if $tax }
+       <tr>
+        <td {$labelStyle}>
+         {ts}Amount Before Tax : {/ts}
+        </td>
+        <td {$valueStyle}>
+         {$totalAmount-$totalTaxAmount|crmMoney}
+        </td>
+       </tr>
+       {foreach from=$dataArray item=value key=priceset}
+        <tr>
+         {if $priceset}
+          <td> Vat {$priceset}%</td>
+          <td>{$value|crmMoney:$currency}</td>
+         {elseif  $priceset == 0}
+          <td> No Vat </td>
+          <td>{$value|crmMoney:$currency}</td>
+         {/if}
+        </tr>
+       {/foreach}
+       <tr>
+        <td {$labelStyle}>
+         {ts}Total Tax{/ts}
+        </td>
+        <td {$valueStyle}>
+         {$totalTaxAmount|crmMoney}
+        </td>
+       </tr>
+      {/if}
+
       {if $isPrimary}
        <tr>
         <td {$labelStyle}>
@@ -234,6 +285,16 @@ registration process.{/ts}</p>
          {$totalAmount|crmMoney} {if $hookDiscount.message}({$hookDiscount.message}){/if}
         </td>
        </tr>
+      {if $totalTaxAmount && $tax EQ ""}
+       <tr>
+        <td {$labelStyle}>
+         {ts}Total Tax Amount{/ts}
+        </td>
+        <td {$valueStyle}>
+         {$totalTaxAmount|crmMoney:$currency}
+        </td>
+       </tr>
+      {/if}
       {if $balanceAmount}
        <tr>
         <td {$labelStyle}>
