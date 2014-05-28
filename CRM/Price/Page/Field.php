@@ -192,6 +192,23 @@ class CRM_Price_Page_Field extends CRM_Core_Page {
     CRM_Utils_Weight::addOrder($priceField, 'CRM_Price_DAO_PriceField',
       'id', $returnURL, $filter
     );
+    // Adding the extra fields in the array
+    $getTaxDetails = FALSE;
+    $taxRate = CRM_Core_PseudoConstant::getTaxRates();
+    foreach ($priceField as $key => $value) {
+      $financialTypeId = CRM_Core_PseudoConstant::getFinancialId($value['id']);
+      if (isset($taxRate[$financialTypeId])) {
+        $priceField[$key]['tax_rate'] = $taxRate[$financialTypeId];
+        if (isset($priceField[$key]['tax_rate'])) {
+          $getTaxDetails = TRUE;
+        }
+        if (isset($priceField[$key]['price'])) {
+          $taxAmount = CRM_Price_BAO_PriceField::calculateTaxAmount($priceField[$key]['price'], $priceField[$key]['tax_rate']);
+        }
+        $priceField[$key]['tax_amount'] = $taxAmount['tax_amount'];
+      }
+    }
+    $this->assign('getTaxDetails', $getTaxDetails);
     $this->assign('priceField', $priceField);
   }
 

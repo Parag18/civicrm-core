@@ -132,7 +132,12 @@ class CRM_Contribute_Form_ContributionView extends CRM_Core_Form {
     if ($id) {
       $lineItem = CRM_Price_BAO_LineItem::getLineItems($id, 'contribution', 1);
       empty($lineItem) ? null :$lineItems[] =  $lineItem;
+      $totalTaxAmount = 0;
+      foreach ($lineItem as $key => $value) {
+        $totalTaxAmount = $value['tax_amount'] + $totalTaxAmount;
+      }
     }
+    $this->assign('totalTaxAmount', $totalTaxAmount);
     $this->assign('lineItem', empty($lineItems) ? FALSE : $lineItems);
     $values['totalAmount'] = $values['total_amount'];
 

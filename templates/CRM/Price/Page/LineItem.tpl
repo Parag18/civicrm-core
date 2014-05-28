@@ -26,6 +26,13 @@
 
 {* Displays contribution/event fees when price set is used. *}
 {foreach from=$lineItem item=value key=priceset}
+  {foreach from=$value item=v key=k }
+    {if $v.tax_amount}
+      {assign var="tax" value=$v.tax_amount}
+    {/if}
+  {/foreach}
+{/foreach}
+{foreach from=$lineItem item=value key=priceset}
   {if $value neq 'skip'}
     {if $lineItem|@count GT 1} {* Header for multi participant registration cases. *}
       {if $priceset GT 0}
@@ -41,9 +48,17 @@
                 {else}
         <th class="right">{ts}Qty{/ts}</th>
                     <th class="right">{ts}Unit Price{/ts}</th>
-        <th class="right">{ts}Total Price{/ts}</th>
-    {/if}
+        {if !$tax}
+          <th class="right">{ts}Total Price{/ts}</th>
+        {/if}
 
+{/if}
+        {if $tax}
+          <th class="right">{ts}Subtotal{/ts}</th>
+          <th class="right">{ts}Tax Rate{/ts}</th>
+          <th class="right">{ts}Tax Amount{/ts}</th>
+          <th class="right">{ts}Total Amount{/ts}</th>
+        {/if}
      {if $pricesetFieldsCount}
         <th class="right">{ts}Total Participants{/ts}</th>{/if}
             </tr>
@@ -53,8 +68,30 @@
     {if $context NEQ "Membership"}
         <td class="right">{$line.qty}</td>
                     <td class="right">{$line.unit_price|crmMoney}</td>
-    {/if}
+    {else}
                 <td class="right">{$line.line_total|crmMoney}</td>
+{/if}
+     {if !$tax && $context NEQ "Membership"}
+          <td class="right">{$line.line_total|crmMoney}</td>
+     {/if}
+     {if $tax}
+       <td class="right">{$line.line_total-$line.tax_amount|crmMoney}</td>
+       {if $line.tax_rate != ""}
+         {if $line.tax_rate == 0}
+           <td class="right">VAT(exempt)</td>
+	  {else}
+           <td class="right">VAT({$line.tax_rate}%)</td>
+	  {/if}
+         <td class="right">{$line.tax_amount|crmMoney}</td>
+       {elseif $line.tax_amount != ''}
+         <td class="right">VAT(exempt)</td>
+         <td class="right">{$line.tax_amount|crmMoney}</td>
+       {else}
+         <td></td>
+         <td></td>
+       {/if}
+       <td class="right">{$line.line_total|crmMoney}</td>
+     {/if}
            {if $pricesetFieldsCount}<td class="right">{$line.participant_count}</td> {/if}
             </tr>
             {/foreach}
@@ -64,10 +101,16 @@
 
 <div class="crm-section no-label total_amount-section">
     <div class="content bold">
+      {if $tax}
+        {ts}Total Tax Amount{/ts}: {$totalTaxAmount|crmMoney}<br />
+      {/if}
         {if $context EQ "Contribution"}
             {ts}Contribution Total{/ts}:
         {elseif $context EQ "Event"}
-            {ts}Event Total{/ts}:
+          {if $totalTaxAmount}
+            {ts}Event SubTotal: {$totalAmount-$totalTaxAmount|crmMoney}{/ts}<br />
+          {/if}
+            {ts}Total{/ts}:
    {elseif $context EQ "Membership"}
             {ts}Membership Fee Total{/ts}:
         {else}

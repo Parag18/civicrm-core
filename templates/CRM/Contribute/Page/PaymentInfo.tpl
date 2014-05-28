@@ -37,7 +37,7 @@ CRM.$(function($) {
       }
     });
 
-    cj('.total_amount-section').remove();
+   {* cj('.total_amount-section').remove(); *}
   }
 });
 </script>
