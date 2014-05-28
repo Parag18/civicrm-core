@@ -1864,7 +1864,6 @@ WHERE  id = %1
         self::$taxRates[$dao->entity_id] = $dao->tax_rate;
       }
     }
-
     return self::$taxRates;
   }
 }
