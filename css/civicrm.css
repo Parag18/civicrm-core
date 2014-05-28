@@ -4672,3 +4672,7 @@ span.crm-status-icon {
 .crm-container .survey-completed {
   text-decoration: line-through;
 }
+
+.crm-printButton {
+  padding-left: 470px;
+}

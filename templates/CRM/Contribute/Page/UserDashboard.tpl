@@ -34,6 +34,7 @@
                 <th>{ts}Received date{/ts}</th>
                 <th>{ts}Receipt Sent{/ts}</th>
                 <th>{ts}Status{/ts}</th>
+                <th></th>
             </tr>
 
             {foreach from=$contribute_rows item=row}
@@ -47,6 +48,20 @@
                     <td>{$row.receive_date|truncate:10:''|crmDate}</td>
                     <td>{$row.receipt_date|truncate:10:''|crmDate}</td>
                     <td>{$row.contribution_status}</td>
+                    <td>
+                      {assign var='id' value=$row.contribution_id}
+                      {assign var='contact_id' value=$row.contact_id}
+                      {assign var='urlParams' value="reset=1&id=$id&cid=$contact_id"}
+                      {if $row.contribution_status != 'Refunded'}
+                        <a class="button" href="{crmURL p='civicrm/contribute/invoice' q=$urlParams}">
+                          <span>{ts}Print Invoice{/ts}</span>
+                        </a>
+                      {else}
+                        <a class="button" href="{crmURL p='civicrm/contribute/invoice' q=$urlParams}">
+                          <span>{ts}Print Credit Note{/ts}</span>
+                        </a>
+                      {/if}
+                    </td>
                 </tr>
             {/foreach}
         </table>
