@@ -35,34 +35,29 @@
   {if $smarty.get.select == 'email'}
     {literal}
       <script type="text/javascript">
-        cj(document).ready(function(){
-        cj('#{/literal}{$form.output.pdf_invoice.id}{literal}').prop('disabled', true);
-        cj('#{/literal}{$form.output.email_invoice.id}{literal}').attr('checked', true);
-        cj('#comment').attr('style', '');    
+        cj(document).ready(function() {
+	  cj('#{/literal}{$form.output.email_invoice.id}{literal}').attr('checked', true);
+	  cj('#emailId').attr('style', '');
+	  cj('#comment').attr('style', '');
         }) 
       </script>
     {/literal}
   {/if}
 
- {if $smarty.get.select == 'pdf'}
-   {literal}
-     <script type="text/javascript">
-      cj(document).ready(function(){
-       cj('#{/literal}{$form.output.email_invoice.id}{literal}').prop('disabled', true);
-       cj('#{/literal}{$form.output.pdf_invoice.id}{literal}').attr('checked', true);
-      })
-     </script>
-   {/literal}
- {/if}
   <tr>
     <td>{$form.output.email_invoice.html}</td>
+  </tr>
+  <tr id="emailId" style="display:none;">
+    <td>{$form.from_email_address.label}{$form.from_email_address.html}{help id ="id-from_email" isAdmin=$isAdmin}</td>
   </tr>
   <tr id="comment" style="display:none;">
     <td>{$form.email_comment.label}{$form.email_comment.html} </td>
   </tr>
-  <tr>
-    <td>{$form.output.pdf_invoice.html}</td>
-  </tr>
+  {if $smarty.get.select != 'email' && $smarty.get.q != 'civicrm/contribute/invoice/email'}
+    <tr>
+      <td>{$form.output.pdf_invoice.html}</td>
+    </tr>
+  {/if}
   <tr id="selectPdfFormat" style="display: none;">
     <td>{$form.pdf_format_id.html} {$form.pdf_format_id.label} </td>
   </tr>
